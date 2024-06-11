@@ -122,26 +122,81 @@ app.get("/books/author/:bookAuthor", async (req, res) => {
 })
 
 // function to get book from Business genre
-const readBusinessBooks = async () => {
+const readBooksByGenre = async (bookGenre) => {
   try {
-    const businessBooks = await Books.find({genre: "Business"})
-    return businessBooks
+    const booksByGenre = await Books.find({genre: bookGenre})
+    return booksByGenre
   } catch(error) {
     throw error
   }
 }
 
 // GET method "/books/genres/business" to read all business books
-app.get("/books/genres/business", async (req, res) => {
+app.get("/books/genres/:bookGenre", async (req, res) => {
   try {
-    const businessBooks = await readBusinessBooks()
-    console.log(businessBooks)
-    if (businessBooks.length != 0) {
+    const booksByGenre = await readBooksByGenre(req.params.bookGenre)
+    if (booksByGenre.length != 0) {
       res.status(201)
-      .json(businessBooks)
+      .json(booksByGenre)
     } else {
       res.status(404)
       .json({error: "No books found"})
+    }
+  } catch(error) {
+    res.status(500)
+    .json({error: "Internal server error"})
+    console.error(error)
+  }
+})
+
+// function to get book released in 2012
+const readBooksByYear = async (bookYear) => {
+  try {
+    const booksByYear = await Books.find({publishedYear: bookYear})
+    return booksByYear
+  } catch(error) {
+    throw error
+  }
+}
+
+// GET method "/books/year/2012" to read all business published in 2012
+app.get("/books/year/:bookYear", async (req, res) => {
+  try {
+    const booksByYear = await readBooksByYear(req.params.bookYear)
+    if (booksByYear.length != 0) {
+      res.status(201)
+      .json(booksByYear)
+    } else {
+      res.status(404)
+      .json({error: "No books found"})
+    }
+  } catch(error) {
+    res.status(500)
+    .json({error: "Internal server error"})
+    console.error(error)
+  }
+})
+
+// function to update book data by Id
+const updateBookById = async (bookId, dataToUpdate) => {
+  try {
+    const updatedBook = await Books.findByIdAndUpdate(bookId, dataToUpdate, {new: true})
+    return updatedBook
+  } catch(error) {
+    throw error
+  }
+} 
+
+// POST method on "/books/:bookId" to update book data by bookId
+app.post("/books/:bookId", async (req, res) => {
+  try {
+    const updatedBook = await updateBookById(req.params.bookId, req.body)
+    if (updatedBook) {
+      res.status(201)
+      .json({message: "Book updated successfully", updatedBook: updatedBook})
+    } else {
+      res.status(404)
+      .json({error: "No Book Found"})
     }
   } catch(error) {
     res.status(500)
