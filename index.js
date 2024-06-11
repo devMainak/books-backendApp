@@ -121,6 +121,35 @@ app.get("/books/author/:bookAuthor", async (req, res) => {
   }
 })
 
+// function to get book from Business genre
+const readBusinessBooks = async () => {
+  try {
+    const businessBooks = await Books.find({genre: "Business"})
+    return businessBooks
+  } catch(error) {
+    throw error
+  }
+}
+
+// GET method "/books/genres/business" to read all business books
+app.get("/books/genres/business", async (req, res) => {
+  try {
+    const businessBooks = await readBusinessBooks()
+    console.log(businessBooks)
+    if (businessBooks.length != 0) {
+      res.status(201)
+      .json(businessBooks)
+    } else {
+      res.status(404)
+      .json({error: "No books found"})
+    }
+  } catch(error) {
+    res.status(500)
+    .json({error: "Internal server error"})
+    console.error(error)
+  }
+})
+
 // Listenting to http port for http requests
 const PORT = 3000
 app.listen(PORT, () => {
