@@ -75,7 +75,51 @@ const readBookByTitle = async (bookTitle) => {
   }
 }
 
-// GET method 
+// GET method on "/books/:bookTitle" to read book data bt title
+app.get("/books/:bookTitle", async (req, res) => {
+  try {
+    const bookByTitle = await readBookByTitle(req.params.bookTitle)
+    if (bookByTitle) {
+      res.status(201)
+      .json(bookByTitle)
+    } else {
+      res.status(404)
+      .json({error: "No Book Found"})
+    }
+  } catch(error) {
+    res.status(500)
+    .json({error: "Internal server error"})
+    console.error(error)
+  }
+})
+
+// function to read all book from db
+const readBooksByAuthor = async (bookAuthor) => {
+  try {
+    const books = await Books.find({author: bookAuthor})
+    return books
+  } catch(error) {
+    throw error
+  }
+}
+
+// GET method on "/books" to read all books
+app.get("/books/author/:bookAuthor", async (req, res) => {
+  try {
+   const books = await readBooksByAuthor(req.params.bookAuthor)
+    if (books.length != 0) {
+      res.status(201)
+      .json(books)
+    } else {
+      res.status(404)
+      .json({error: "No books found"})
+    }
+  } catch(error) {
+    res.status(500)
+    .json({error: "Internal server error"})
+    console.error(error)
+  }
+})
 
 // Listenting to http port for http requests
 const PORT = 3000
