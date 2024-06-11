@@ -205,6 +205,44 @@ app.post("/books/:bookId", async (req, res) => {
   }
 })
 
+// function to update book data by book title
+const updateBookByTitle = async (bookTitle, dataToUpdate) => {
+  try {
+    const updatedBook = await Books.findOneAndUpdate(bookTitle, dataToUpdate, {new: true})
+    return updatedBook
+  } catch(error) {
+    throw error
+  }
+}
+
+// POST method on "/books/title/:bookTitle" to update book data by bookId
+app.post("/books/title/:bookTitle", async (req, res) => {
+  try {
+    const updatedBook = await updateBookByTitle({title: req.params.bookTitle}, req.body)
+    if (updatedBook) {
+      res.status(201)
+      .json({message: "Book updated successfully", updatedBook: updatedBook})
+    } else {
+      res.status(404)
+      .json({error: "No Book Found"})
+    }
+  } catch(error) {
+    res.status(500)
+    .json({error: "Internal server error"})
+    console.error(error)
+  }
+})
+
+// function to update book data by book title
+const deleteBookById = async (bookId) => {
+  try {
+    const updatedBook = await Books.findOneAndUpdate(bookTitle, dataToUpdate, {new: true})
+    return updatedBook
+  } catch(error) {
+    throw error
+  }
+}
+
 // Listenting to http port for http requests
 const PORT = 3000
 app.listen(PORT, () => {
