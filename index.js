@@ -1,9 +1,16 @@
 const express = require('express')
+const cors = require("cors")
 const app = express()
 const { initializeDatabase } = require('./db/db.connected')
 const Books = require('./models/books.model') 
 
+const corsOptions = {
+  origin: "*",
+  credentials: true
+}
+
 app.use(express.json())
+app.use(cors(corsOptions))
 
 // Establishing connection to DB
 initializeDatabase();
@@ -233,15 +240,51 @@ app.post("/books/title/:bookTitle", async (req, res) => {
   }
 })
 
-// function to update book data by book title
+// POST method on "/books/:bookId" to update book data by bookId
+app.post("/books/:bookId", async (req, res) => {
+  try {
+    const updatedBook = await updateBookById(req.params.bookId, req.body)
+    if (updatedBook) {
+      res.status(201)
+      .json({message: "Book updated successfully", updatedBook: updatedBook})
+    } else {
+      res.status(404)
+      .json({error: "No Book Found"})
+    }
+  } catch(error) {
+    res.status(500)
+    .json({error: "Internal server error"})
+    console.error(error)
+  }
+})
+
+// function to delete book data by book title
 const deleteBookById = async (bookId) => {
   try {
-    const updatedBook = await Books.findOneAndUpdate(bookTitle, dataToUpdate, {new: true})
+    const updatedBook = await Books.findByIdAndDelete(bookId)
     return updatedBook
   } catch(error) {
     throw error
   }
 }
+
+// DELETE method on "/books/:bookId" to delete book data by bookId
+app.delete("/books/:bookId", async (req, res) => {
+  try {
+    const deletedBook = await deleteBookById(req.params.bookId)
+    if (deletedBook) {
+      res.status(201)
+      .json({message: "Book deleted successfully", deletedBook: deletedBook})
+    } else {
+      res.status(404)
+      .json({error: "No Book Found"})
+    }
+  } catch(error) {
+    res.status(500)
+    .json({error: "Internal server error"})
+    console.error(error)
+  }
+})
 
 // Listenting to http port for http requests
 const PORT = 3000
